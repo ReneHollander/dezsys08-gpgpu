@@ -5,7 +5,28 @@
 
 \subsection{Theoretische Fragestellungen}
 \subsubsection{Nutzung von GPUs in normalen Desktop-Anwendungen}
+\textbf{Einführung}\\
+Die Nutzung von GPUs in Desktop-Anwendungen ist meistens unter dem Begriff ''Hardware acceleration'' (Hardwarebeschleunigung) bekannt.\\
+Hardwarebeschleunigung entlastet die CPU durch Delegation rechenintensiver Aufgaben an für diese Aufgaben optimierte Hardware. In den meisten Fällen ist dies die GPU. \cite{hardwareacc_streamingmedia} \\\\
+Der Vorteil von GPUs gegenüber CPUs ist die Nebenläufigkeit. CPUs sind sequentiell ausführende Prozessoren, während GPUs auf nebenläufige Ausführung spezialisiert sind. \cite[S. 2-3]{programminggpgpu_kirk} \\
+Für bestimmte, rechenintensive Aufgaben ist es daher sinnvoll, die GPU anstelle der CPU zu verwenden. Allerdings sollte beachtet werden, dass die Delegation an die GPU durchaus aufwändig sein kann.\\
+Beispielsweise ist das Kopieren von Ressourcen ein Faktor, welcher berücksichtigt werden sollte.\\\\
+\textbf{Anwendungen}\\
+Hier einige Anwendungen, welche Programmteile auf der GPU ausführen:
+\begin{itemize}
+\item Microsoft Office
+\item VLC
+\item Verschiedene Browser (Besonders für HTML5)
+\end{itemize}
+Zusätzlich ist es meistens möglich, die Hardwarebeschleunigung manuell ein- bzw. auszuschalten.
+\newpage
 \subsubsection{IDEs und Programmiersprachen}
+\textbf{OpenCL}\\
+Eine OpenCL-Applikation besteht aus 2 Bestandteilen - dem Host und den ''Compute Devices''. Die Compute-Devices stellen CPUs, GPUs oder andere Prozessortypen dar. Auf den Devices findet die eigentliche Berechnung statt. Der Host ist dafür zuständig, die Aufgaben an die Devices zu verteilen. \cite{openclprogramming_munshi} \\\\
+Der Host-Code kann dabei in verschiedenen Programmiersprachen wie C++ oder Java programmiert werden. Der Code für die Compute-Devices (Kernels) wird allerdings in der OpenCL Programming Language, auch OpenCL C genannt, programmiert. \cite{openclprogramming_munshi}\\\\
+Als Entwicklungsumgebung kann eine beliebige IDE für die jeweilige Sprache genutzt werden. Um besondere Funktionen für die nebenläufige Programmierung zu nutzen, bietet OpenCL \\''OpenCL Studio'' an. \cite[S. 12]{openclstudio} \\\\
+\textbf{CUDA}\\
+Eine CUDA-Anwendung besteht ebenfalls aus einem Host und mehreren Devices. Der Device-Code wird dabei ebenfalls in einer C-ähnlichen Sprache verfasst. Für den Host-Code existieren ebenfalls diverse Bindings. \cite[S. 41]{programminggpgpu_kirk} Als speziell angepasste IDE stellt Nvidia die Nsight Eclipse Edition zur Verfügung. \cite{nsighteclipse}
 \subsubsection{Bestehende Programme auf GPUs nutzen}
 \subsubsection{Aparapi}
 Aparapi ist ein Tool, dass Java Bytecode während der Laufzeit in OpenCL C übersetzt und auf der GPU ausführt. Wenn die Übersetzung wegen eines Fehlers nicht möglich ist wird der Code in Thread Pools auf der CPU ausgeführt.\cite{aparapi}
