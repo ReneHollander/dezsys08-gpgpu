@@ -20,3 +20,7 @@ out/
 *.bak*
 *.tdo
 *.lol
+
+target/
+*.iml
+.idea/
