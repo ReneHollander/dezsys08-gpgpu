@@ -6,7 +6,11 @@ import org.lwjgl.BufferUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 public class Util {
 
@@ -49,4 +53,19 @@ public class Util {
         return str.toString();
     }
 
+    public static String toString(ByteBuffer buffer) {
+        byte[] bytes = new byte[buffer.capacity()];
+        for (int i = 0; i < buffer.capacity(); i++) {
+          bytes[i] = buffer.get(i);
+        }
+        return new String(bytes, StandardCharsets.UTF_8);
+    }
+
+    public static IntBuffer toIntBuffer(int[] ints) {
+        return (IntBuffer) BufferUtils.createIntBuffer(ints.length).put(ints).rewind();
+    }
+
+    public static IntBuffer asIntBuffer(int i) {
+        return (IntBuffer) BufferUtils.createIntBuffer(1).put(i).rewind();
+    }
 }
