@@ -1,96 +1,115 @@
 package at.hollanderkalauner.gpgpu;
 
+import at.hollanderkalauner.gpgpu.simplecl.*;
+import com.google.common.base.Splitter;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
-import org.lwjgl.opencl.*;
 
-import java.nio.FloatBuffer;
+import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.List;
 
-import static at.hollanderkalauner.gpgpu.Util.readFully;
-import static at.hollanderkalauner.gpgpu.Util.toFloatBuffer;
+import static at.hollanderkalauner.gpgpu.Util.*;
 import static org.lwjgl.opencl.CL10.*;
-import static org.lwjgl.opencl.CLUtil.checkCLError;
-import static org.lwjgl.system.MemoryUtil.NULL;
-import static org.lwjgl.system.MemoryUtil.memDecodeUTF8;
 
 public class Main {
 
-    // Data buffers to store the input and result data in
-    static final FloatBuffer a = toFloatBuffer(new float[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
-    static final FloatBuffer b = toFloatBuffer(new float[]{9, 8, 7, 6, 5, 4, 3, 2, 1, 0});
-    static final FloatBuffer answer = BufferUtils.createFloatBuffer(a.capacity());
+    private static final int MAX_SOURCE_SIZE = 0x100000;
 
-    private static final CLContextCallback CREATE_CONTEXT_CALLBACK = new CLContextCallback() {
-        @Override
-        public void invoke(long errinfo, long private_info, long cb, long user_data) {
-            System.err.println("[LWJGL] cl_create_context_callback");
-            System.err.println("\tInfo: " + memDecodeUTF8(errinfo));
-        }
-    };
+    private static final int GLOBAL_ITEM_SIZE = 8192;
+    private static final String PW_HASH = "c75e86c6362f42a5b07cfe0f66d3d10a";
 
     public static void main(String[] args) throws Exception {
-        // System.out.println(CL.getICD().toString());
 
-        CLPlatform platform = CLPlatform.getPlatforms().get(0);
+        Platform platform = Platform.createPlatform();
+        System.out.println(platform);
+        Device device = platform.createDevice(CL_DEVICE_TYPE_GPU);
+        System.out.println(device);
+        Context context = device.createContext();
+        CommandQueue commandQueue = context.createCommandQueue();
+        Program program = context.createProgram(readFully("kernels/bruteforce.cl"));
+        program.build("-I kernels");
+        Kernel kernel = program.createKernel("vector_add");
 
-        PointerBuffer ctxProps = BufferUtils.createPointerBuffer(3);
-        ctxProps.put(CL_CONTEXT_PLATFORM).put(platform).put(0).flip();
+        int maxlen = 6;
 
-        IntBuffer errcode_ret = BufferUtils.createIntBuffer(1);
+        long permutations = 0;
+        for (long i = 1; i <= maxlen; i++) {
+            permutations += Math.pow(26, i);
+        }
+        long permutationsPerThread = permutations / GLOBAL_ITEM_SIZE;
+        long missingPermutations = permutations - permutationsPerThread * GLOBAL_ITEM_SIZE;
 
-        List<CLDevice> devices = platform.getDevices(CL_DEVICE_TYPE_GPU);
-        long context = clCreateContext(ctxProps, devices.get(0).address(), CREATE_CONTEXT_CALLBACK, NULL, errcode_ret);
+        System.out.format("Permutations globally: %d!\n", permutations);
+        System.out.format("Permutations per thread: %d!\n", permutationsPerThread);
+        System.out.format("Permutations missing: %d!\n", missingPermutations);
 
-        checkCLError(errcode_ret);
-        long queue = clCreateCommandQueue(context, devices.get(0).address(), CL_QUEUE_PROFILING_ENABLE, errcode_ret);
+
+        int[] starts = new int[GLOBAL_ITEM_SIZE];
+        int[] stops = new int[GLOBAL_ITEM_SIZE];
+        int[] pw_hash = new int[4];
+
+        List<String> pwHashList = Splitter.fixedLength(8).splitToList(PW_HASH);
+        for (int i = 0; i < pwHashList.size(); i++) {
+            pw_hash[i] = (int) Long.parseLong(pwHashList.get(i), 16);
+        }
+
+        int count = 0;
+        for (int i = 0; i < GLOBAL_ITEM_SIZE; i++) {
+            starts[i] = count;
+            count += permutationsPerThread;
+            stops[i] = count;
+            count++;
+        }
+        stops[GLOBAL_ITEM_SIZE - 1] += missingPermutations;
+
+        IntBuffer startsBuf = toIntBuffer(starts);
+        IntBuffer stopsBuf = toIntBuffer(stops);
+        IntBuffer pwHashBuf = toIntBuffer(pw_hash);
+        IntBuffer maxlenBuf = asIntBuffer(maxlen);
+        ByteBuffer crackedPwBuf = BufferUtils.createByteBuffer(maxlen + 1);
 
         // Allocate memory for our two input buffers and our result buffer
-        long aMem = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, a, null);
-        clEnqueueWriteBuffer(queue, aMem, 1, 0, a, null, null);
-        long bMem = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, b, null);
-        clEnqueueWriteBuffer(queue, bMem, 1, 0, b, null, null);
-        long answerMem = clCreateBuffer(context, CL_MEM_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, answer, null);
-        clFinish(queue);
-
-        // Create our program and kernel
-        long program = clCreateProgramWithSource(context, readFully("kernels/helloworld.cl"), null);
-
-        CLUtil.checkCLError(clBuildProgram(program, devices.get(0).address(), "", null, 0L));
-        // sum has to match a kernel method name in the OpenCL source
-        long kernel = clCreateKernel(program, "sum", null);
+        long startsMem = clCreateBuffer(context.address(), CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, startsBuf, null);
+        clEnqueueWriteBuffer(commandQueue.address(), startsMem, 1, 0, startsBuf, null, null);
+        long stopsMem = clCreateBuffer(context.address(), CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, stopsBuf, null);
+        clEnqueueWriteBuffer(commandQueue.address(), stopsMem, 1, 0, stopsBuf, null, null);
+        long pwHashMem = clCreateBuffer(context.address(), CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, pwHashBuf, null);
+        clEnqueueWriteBuffer(commandQueue.address(), pwHashMem, 1, 0, pwHashBuf, null, null);
+        long maxlenMem = clCreateBuffer(context.address(), CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, maxlenBuf, null);
+        clEnqueueWriteBuffer(commandQueue.address(), maxlenMem, 1, 0, maxlenBuf, null, null);
+        long crackedMem = clCreateBuffer(context.address(), CL_MEM_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, crackedPwBuf, null);
+        commandQueue.finish();
 
         // Execution our kernel
         PointerBuffer kernel1DGlobalWorkSize = BufferUtils.createPointerBuffer(1);
-        kernel1DGlobalWorkSize.put(0, a.capacity());
+        kernel1DGlobalWorkSize.put(0, GLOBAL_ITEM_SIZE);
 
-        clSetKernelArg1p(kernel, 0, aMem);
-        clSetKernelArg1p(kernel, 1, bMem);
-        clSetKernelArg1p(kernel, 2, answerMem);
+        clSetKernelArg1p(kernel.address(), 0, startsMem);
+        clSetKernelArg1p(kernel.address(), 1, stopsMem);
+        clSetKernelArg1p(kernel.address(), 2, maxlenMem);
+        clSetKernelArg1p(kernel.address(), 3, pwHashMem);
+        clSetKernelArg1p(kernel.address(), 4, crackedMem);
 
-        clEnqueueNDRangeKernel(queue, kernel, 1, null, kernel1DGlobalWorkSize, null, null, null);
+        clEnqueueNDRangeKernel(commandQueue.address(), kernel.address(), 1, null, kernel1DGlobalWorkSize, null, null, null);
 
         // Read the results memory back into our result buffer
-        clEnqueueReadBuffer(queue, answerMem, 1, 0, answer, null, null);
-        clFinish(queue);
+        clEnqueueReadBuffer(commandQueue.address(), crackedMem, 1, 0, crackedPwBuf, null, null);
+        commandQueue.finish();
 
         // Print the result memory
-        System.out.println(Util.toString(a));
-        System.out.println("+");
-        System.out.println(Util.toString(b));
-        System.out.println("=");
-        System.out.println(Util.toString(answer));
+        System.out.println("Cracked password: " + Util.toString(crackedPwBuf));
 
         // Clean up OpenCL resources
-        clReleaseKernel(kernel);
-        clReleaseProgram(program);
-        clReleaseMemObject(aMem);
-        clReleaseMemObject(bMem);
-        clReleaseMemObject(answerMem);
-        clReleaseCommandQueue(queue);
-        clReleaseContext(context);
-        CL.destroy();
+        clReleaseMemObject(startsMem);
+        clReleaseMemObject(stopsMem);
+        clReleaseMemObject(maxlenMem);
+        clReleaseMemObject(pwHashMem);
+        clReleaseMemObject(crackedMem);
+        kernel.release();
+        program.release();
+        commandQueue.release();
+        context.release();
     }
 
 
