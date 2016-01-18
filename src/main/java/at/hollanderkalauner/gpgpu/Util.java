@@ -10,7 +10,6 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
 public class Util {
 
@@ -54,11 +53,18 @@ public class Util {
     }
 
     public static String toString(ByteBuffer buffer) {
-        byte[] bytes = new byte[buffer.capacity()];
-        for (int i = 0; i < buffer.capacity(); i++) {
-          bytes[i] = buffer.get(i);
+        byte[] inBytes = new byte[buffer.capacity()];
+        buffer.get(inBytes);
+        byte[] outBytes = inBytes;
+        for (int i = 0; i < inBytes.length; i++) {
+            byte b = inBytes[i];
+            if (b == 0x00) {
+                outBytes = new byte[i];
+                System.arraycopy(inBytes, 0, outBytes, 0, i);
+                break;
+            }
         }
-        return new String(bytes, StandardCharsets.UTF_8);
+        return new String(outBytes, StandardCharsets.UTF_8);
     }
 
     public static IntBuffer toIntBuffer(int[] ints) {
