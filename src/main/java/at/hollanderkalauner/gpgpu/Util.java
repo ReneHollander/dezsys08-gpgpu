@@ -1,5 +1,6 @@
 package at.hollanderkalauner.gpgpu;
 
+import com.google.common.base.Splitter;
 import org.apache.commons.io.IOUtils;
 import org.lwjgl.BufferUtils;
 
@@ -10,6 +11,7 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.stream.StreamSupport;
 
 public class Util {
 
@@ -73,5 +75,10 @@ public class Util {
 
     public static IntBuffer asIntBuffer(int i) {
         return (IntBuffer) BufferUtils.createIntBuffer(1).put(i).rewind();
+    }
+
+    public static int[] hexStringToIntArray(String str) {
+        if (str.length() % 8 != 0) throw new IllegalArgumentException("Invalid hex string");
+        return StreamSupport.stream(Splitter.fixedLength(8).split(str).spliterator(), false).mapToInt((s) -> (int) Long.parseLong(s, 16)).toArray();
     }
 }

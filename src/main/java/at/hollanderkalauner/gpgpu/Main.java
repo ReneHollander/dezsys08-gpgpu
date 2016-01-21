@@ -3,7 +3,6 @@ package at.hollanderkalauner.gpgpu;
 import at.hollanderkalauner.gpgpu.simplecl.*;
 import com.google.common.base.Splitter;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.PointerBuffer;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -46,12 +45,7 @@ public class Main {
 
         int[] starts = new int[GLOBAL_ITEM_SIZE];
         int[] stops = new int[GLOBAL_ITEM_SIZE];
-        int[] pw_hash = new int[4];
-
-        List<String> pwHashList = Splitter.fixedLength(8).splitToList(PW_HASH);
-        for (int i = 0; i < pwHashList.size(); i++) {
-            pw_hash[i] = (int) Long.parseLong(pwHashList.get(i), 16);
-        }
+        int[] pw_hash = hexStringToIntArray(PW_HASH);
 
         int count = 0;
         for (int i = 0; i < GLOBAL_ITEM_SIZE; i++) {
