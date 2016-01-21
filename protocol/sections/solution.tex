@@ -26,9 +26,10 @@ Eine OpenCL-Applikation besteht aus 2 Bestandteilen - dem Host und den ''Compute
 Der Host-Code kann dabei in verschiedenen Programmiersprachen wie C++ oder Java programmiert werden. Der Code für die Compute-Devices (Kernels) wird allerdings in der OpenCL Programming Language, auch OpenCL C genannt, programmiert. \cite{openclprogramming_munshi}\\\\
 Als Entwicklungsumgebung kann eine beliebige IDE für die jeweilige Sprache genutzt werden. Um besondere Funktionen für die nebenläufige Programmierung zu nutzen, bietet OpenCL \\''OpenCL Studio'' an. \cite[S. 12]{openclstudio} \\\\
 \textbf{CUDA}\\
-Eine CUDA-Anwendung besteht ebenfalls aus einem Host und mehreren Devices. Der Device-Code wird dabei ebenfalls in einer C-ähnlichen Sprache verfasst. Für den Host-Code existieren ebenfalls diverse Bindings. \cite[S. 41]{programminggpgpu_kirk} Als speziell angepasste IDE stellt Nvidia die Nsight Eclipse Edition zur Verfügung. \cite{nsighteclipse}
+Eine CUDA-Anwendung besteht ebenfalls aus einem Host und mehreren Devices. Der Device-Code wird dabei ebenfalls in einer C-ähnlichen Sprache verfasst. Für den Host-Code existieren ebenfalls diverse Bindings. \cite[S. 41]{programminggpgpu_kirk} Als speziell angepasste ''IDE'' stellt Nvidia das Nsight Eclipse Plugin zur Verfügung. \cite{nsighteclipse}
 \subsubsection{Bestehende Programme auf GPUs nutzen}
-\subsubsection{Aparapi}
+Prinzipiell ermöglichen es bestimmte Tools, bestehenden Code in OpenCL zu übersetzen. Allerdings können die Ergebnisse wenig zufriedenstellend ausfallen. In den meisten Fällen ist es sinnvoller, den OpenCL C Code selber zu schreiben. Dies macht es möglich, den Code entsprechend zu parallelisieren und zu optimieren. Das Übersetzen von bestehendem Code in OpenCL C ist oft nicht ausreichend um eine Performanceoptimierung zu erzielen.\\\\
+\textbf{Aparapi}\\
 Aparapi ist ein Tool, dass Java Bytecode während der Laufzeit in OpenCL C übersetzt und auf der GPU ausführt. Wenn die Übersetzung wegen eines Fehlers nicht möglich ist wird der Code in Thread Pools auf der CPU ausgeführt.\cite{aparapi}
 
 \subsubsection{Transcompiler}
