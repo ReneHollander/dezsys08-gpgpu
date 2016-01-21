@@ -14,9 +14,8 @@ import static org.lwjgl.opencl.CL10.*;
 
 public class Main {
 
-    private static final int MAX_SOURCE_SIZE = 0x100000;
-
     private static final int GLOBAL_ITEM_SIZE = 8192;
+    private static final int LOCAL_ITEM_SIZE = 64;
     private static final String PW_HASH = "c75e86c6362f42a5b07cfe0f66d3d10a";
 
     public static void main(String[] args) throws Exception {
@@ -70,34 +69,32 @@ public class Main {
         ByteBuffer crackedPwBuf = BufferUtils.createByteBuffer(maxlen + 1);
 
         // Allocate memory for our two input buffers and our result buffer
-        long startsMem = clCreateBuffer(context.address(), CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, startsBuf, null);
+        long startsMem = clCreateBuffer(context.address(), CL_MEM_READ_ONLY, startsBuf, null);
         clEnqueueWriteBuffer(commandQueue.address(), startsMem, 1, 0, startsBuf, null, null);
-        long stopsMem = clCreateBuffer(context.address(), CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, stopsBuf, null);
+        long stopsMem = clCreateBuffer(context.address(), CL_MEM_READ_ONLY, stopsBuf, null);
         clEnqueueWriteBuffer(commandQueue.address(), stopsMem, 1, 0, stopsBuf, null, null);
-        long pwHashMem = clCreateBuffer(context.address(), CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, pwHashBuf, null);
+        long pwHashMem = clCreateBuffer(context.address(), CL_MEM_READ_ONLY, pwHashBuf, null);
         clEnqueueWriteBuffer(commandQueue.address(), pwHashMem, 1, 0, pwHashBuf, null, null);
-        long maxlenMem = clCreateBuffer(context.address(), CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, maxlenBuf, null);
+        long maxlenMem = clCreateBuffer(context.address(), CL_MEM_READ_ONLY, maxlenBuf, null);
         clEnqueueWriteBuffer(commandQueue.address(), maxlenMem, 1, 0, maxlenBuf, null, null);
-        long crackedMem = clCreateBuffer(context.address(), CL_MEM_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, crackedPwBuf, null);
+        long crackedMem = clCreateBuffer(context.address(), CL_MEM_WRITE_ONLY, crackedPwBuf, null);
         commandQueue.finish();
 
-        // Execution our kernel
-        PointerBuffer kernel1DGlobalWorkSize = BufferUtils.createPointerBuffer(1);
-        kernel1DGlobalWorkSize.put(0, GLOBAL_ITEM_SIZE);
+        kernel.clSetKernelArg1p(0, startsMem);
+        kernel.clSetKernelArg1p(1, stopsMem);
+        kernel.clSetKernelArg1p(2, maxlenMem);
+        kernel.clSetKernelArg1p(3, pwHashMem);
+        kernel.clSetKernelArg1p(4, crackedMem);
 
-        clSetKernelArg1p(kernel.address(), 0, startsMem);
-        clSetKernelArg1p(kernel.address(), 1, stopsMem);
-        clSetKernelArg1p(kernel.address(), 2, maxlenMem);
-        clSetKernelArg1p(kernel.address(), 3, pwHashMem);
-        clSetKernelArg1p(kernel.address(), 4, crackedMem);
-
+        commandQueue.finish();
         long start = System.nanoTime();
-        clEnqueueNDRangeKernel(commandQueue.address(), kernel.address(), 1, null, kernel1DGlobalWorkSize, null, null, null);
+        commandQueue.enqueueNDRangeKernel(kernel, 1, null, GLOBAL_ITEM_SIZE, LOCAL_ITEM_SIZE, null, null);
+        commandQueue.finish();
+        long time = System.nanoTime() - start;
 
         // Read the results memory back into our result buffer
         clEnqueueReadBuffer(commandQueue.address(), crackedMem, 1, 0, crackedPwBuf, null, null);
         commandQueue.finish();
-        long time = System.nanoTime() - start;
 
         // Print the result memory
         System.out.println("Cracked password: " + Util.toString(crackedPwBuf));

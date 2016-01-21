@@ -1,5 +1,7 @@
 package at.hollanderkalauner.gpgpu.simplecl;
 
+import org.lwjgl.opencl.CL10;
+
 import static org.lwjgl.opencl.CL10.clReleaseKernel;
 
 public class Kernel implements Releaseable {
@@ -17,6 +19,10 @@ public class Kernel implements Releaseable {
 
     public long address() {
         return address;
+    }
+
+    public void clSetKernelArg1p(int idx, long arg) {
+        CL10.clSetKernelArg1p(address(), idx, arg);
     }
 
     @Override
