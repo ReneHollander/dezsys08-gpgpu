@@ -2,6 +2,7 @@ package at.hollanderkalauner.gpgpu.simplecl;
 
 import org.lwjgl.opencl.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class Platform {
@@ -54,33 +55,33 @@ public class Platform {
     }
 
     public String getProfile() {
-        return Info.clGetPlatformInfoStringUTF8(address(), CL10.CL_PLATFORM_PROFILE);
+        return Info.clGetPlatformInfoStringUTF8(address(), CL10.CL_PLATFORM_PROFILE).trim();
     }
 
     public String getVersion() {
-        return Info.clGetPlatformInfoStringUTF8(address(), CL10.CL_PLATFORM_VERSION);
+        return Info.clGetPlatformInfoStringUTF8(address(), CL10.CL_PLATFORM_VERSION).trim();
     }
 
     public String getName() {
-        return Info.clGetPlatformInfoStringUTF8(address(), CL10.CL_PLATFORM_NAME);
+        return Info.clGetPlatformInfoStringUTF8(address(), CL10.CL_PLATFORM_NAME).trim();
     }
 
     public String getVendor() {
-        return Info.clGetPlatformInfoStringUTF8(address(), CL10.CL_PLATFORM_VENDOR);
+        return Info.clGetPlatformInfoStringUTF8(address(), CL10.CL_PLATFORM_VENDOR).trim();
     }
 
-    public String getExtensions() {
-        return Info.clGetPlatformInfoStringUTF8(address(), CL10.CL_PLATFORM_EXTENSIONS);
+    public String[] getExtensions() {
+        return Info.clGetPlatformInfoStringUTF8(address(), CL10.CL_PLATFORM_EXTENSIONS).split(" ");
     }
 
     @Override
     public String toString() {
         return "Platform{" +
-                "vendor='" + getVendor() + '\'' +
-                ", name='" + getName() + '\'' +
+                "profile='" + getProfile() + '\'' +
                 ", version='" + getVersion() + '\'' +
-                ", profile='" + getProfile() + '\'' +
-                ", extensions='" + getExtensions() + '\'' +
+                ", name='" + getName() + '\'' +
+                ", vendor='" + getVendor() + '\'' +
+                ", extensions=" + Arrays.toString(getExtensions()) +
                 '}';
     }
 }

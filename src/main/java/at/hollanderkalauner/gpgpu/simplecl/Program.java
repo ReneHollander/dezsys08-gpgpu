@@ -20,9 +20,9 @@ public class Program implements Releaseable {
     public void build(String options) {
         int errCode = clBuildProgram(address(), getContext().getDevice().address(), options, null, 0L);
         if (errCode == CL_BUILD_PROGRAM_FAILURE) {
-            IntBuffer len = BufferUtils.createIntBuffer(1);
             System.err.println(Info.clGetProgramBuildInfoStringUTF8(address(), getContext().getDevice().address(), CL_PROGRAM_BUILD_LOG));
         } else if (errCode != CL_SUCCESS) {
+            System.err.println(Info.clGetProgramBuildInfoStringUTF8(address(), getContext().getDevice().address(), CL_PROGRAM_BUILD_LOG));
             checkCLError(errCode);
         }
     }

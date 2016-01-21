@@ -52,19 +52,19 @@ public class Device {
     }
 
     public String getName() {
-        return Info.clGetDeviceInfoStringUTF8(address(), CL_DEVICE_NAME);
+        return Info.clGetDeviceInfoStringUTF8(address(), CL_DEVICE_NAME).trim();
     }
 
     public String getProfile() {
-        return Info.clGetDeviceInfoStringUTF8(address(), CL_DEVICE_PROFILE);
+        return Info.clGetDeviceInfoStringUTF8(address(), CL_DEVICE_PROFILE).trim();
     }
 
     public String getVendor() {
-        return Info.clGetDeviceInfoStringUTF8(address(), CL_DEVICE_VENDOR);
+        return Info.clGetDeviceInfoStringUTF8(address(), CL_DEVICE_VENDOR).trim();
     }
 
     public String getVersion() {
-        return Info.clGetDeviceInfoStringUTF8(address(), CL_DEVICE_VERSION);
+        return Info.clGetDeviceInfoStringUTF8(address(), CL_DEVICE_VERSION).trim();
     }
 
     public int getType() {
