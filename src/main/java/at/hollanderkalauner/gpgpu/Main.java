@@ -91,14 +91,17 @@ public class Main {
         clSetKernelArg1p(kernel.address(), 3, pwHashMem);
         clSetKernelArg1p(kernel.address(), 4, crackedMem);
 
+        long start = System.nanoTime();
         clEnqueueNDRangeKernel(commandQueue.address(), kernel.address(), 1, null, kernel1DGlobalWorkSize, null, null, null);
 
         // Read the results memory back into our result buffer
         clEnqueueReadBuffer(commandQueue.address(), crackedMem, 1, 0, crackedPwBuf, null, null);
         commandQueue.finish();
+        long time = System.nanoTime() - start;
 
         // Print the result memory
         System.out.println("Cracked password: " + Util.toString(crackedPwBuf));
+        System.out.println("Time: " + (time / 1000000) + "ms");
 
         // Clean up OpenCL resources
         clReleaseMemObject(startsMem);
