@@ -101,6 +101,8 @@ Die Ergebnisse sehen folgendermaßen aus:
 	\end{center}
 \end{figure}
 \subsubsection{Fazit}
+Dieser Algorithmus kann gut parallelisiert werden, da die Arbeit in kleine Pakete aufgeteilt werden kann. Jedes dieser Pakete wird unabhängig von einander bearbeitet. Hierbei muss keine Kommunikation zwischen Host Code und Kernel stattfinden, was zusätzlich die Performance erhöht. Weil dieser Algorithmus so gut parallelisiert bar ist und wenig Kommunikation zwischen Host und Kernel stattfindet ist die GPU im Vorteil. Aber erst bei einer Wortlänge von 6 ist die GPU um 1 Magnitude schneller.
+
 \newpage
 \subsection{GPUPI}
 \subsubsection{Beschreibung}
@@ -117,3 +119,4 @@ Unter dem Menüpunkt ''Calculate'' kann ausgewählt werden, ob die CPU oder die 
 \end{figure}
 \newpage
 \subsubsection{Fazit}
+Durch diese spezielle parallele Implementierung und des gewählten Algorithmus werden nur die nächsten 9 Stellen von Pi nach zum Beispiel der 1 Milliardsten ausgegeben. Auch hier liegt die GPU ab mehreren 10 Mio Stellen klar im Vorteil.
