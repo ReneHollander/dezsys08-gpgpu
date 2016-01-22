@@ -52,4 +52,11 @@ public class Context implements Releaseable {
         checkCLError(errcode_ret);
         return new Program(this, programAddress);
     }
+
+    public Program createProgram(String... sources) {
+        IntBuffer errcode_ret = BufferUtils.createIntBuffer(1);
+        long programAddress = clCreateProgramWithSource(address(), sources, null);
+        checkCLError(errcode_ret);
+        return new Program(this, programAddress);
+    }
 }

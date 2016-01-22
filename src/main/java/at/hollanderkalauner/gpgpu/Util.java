@@ -77,6 +77,10 @@ public class Util {
         return (IntBuffer) BufferUtils.createIntBuffer(1).put(i).rewind();
     }
 
+    public static String readResource(String name) throws IOException {
+        return IOUtils.toString(Util.class.getResourceAsStream(name));
+    }
+
     public static int[] hexStringToIntArray(String str) {
         if (str.length() % 8 != 0) throw new IllegalArgumentException("Invalid hex string");
         return StreamSupport.stream(Splitter.fixedLength(8).split(str).spliterator(), false).mapToInt((s) -> (int) Long.parseLong(s, 16)).toArray();

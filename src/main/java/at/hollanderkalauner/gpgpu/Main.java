@@ -13,7 +13,7 @@ import static at.hollanderkalauner.gpgpu.Util.*;
 import static org.lwjgl.opencl.CL10.*;
 
 public class Main {
-    private static final int ITERATIONS = 1;
+    private static final int ITERATIONS = 100;
     private static final int LOCAL_ITEM_SIZE = 64;
     private static final int GLOBAL_ITEM_SIZE = 8192;
     private static final String PW_HASH = "c75e86c6362f42a5b07cfe0f66d3d10a";
@@ -22,12 +22,12 @@ public class Main {
 
         Platform platform = Platform.createPlatform();
         System.out.println(platform);
-        Device device = platform.createDevice(CL_DEVICE_TYPE_GPU);
+        Device device = platform.createDevice(CL_DEVICE_TYPE_CPU);
         System.out.println(device);
         Context context = device.createContext();
         CommandQueue commandQueue = context.createCommandQueue();
-        Program program = context.createProgram(readFully("kernels/bruteforce.cl"));
-        program.build("-I kernels");
+        Program program = context.createProgram(Util.readResource("/kernels/bruteforce.cl"));
+        program.build();
         Kernel kernel = program.createKernel("vector_add");
 
         int maxlen = 6;
@@ -93,8 +93,8 @@ public class Main {
             commandQueue.finish();
 
             // Print the result memory
-            System.out.println("Cracked password: " + Util.toString(crackedPwBuf));
-            System.out.println("Time: " + (time / 1000000) + "ms");
+            //System.out.println("Cracked password: " + Util.toString(crackedPwBuf));
+            System.out.println(/*"Time: " + */(time / 1000000) /*+ "ms" */);
 
             // Clean up OpenCL resources
             clReleaseMemObject(startsMem);
