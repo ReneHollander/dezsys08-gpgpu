@@ -53,35 +53,64 @@ Ein Transcompiler übersetzt Source Code von einer Sprache in eine andere.
 
 \textbf{Swan}\\
 Swan ist ein Tool um CUDA Kernel Sourcecode in OpenCL Sourcecode zu übersetzen. Nebenbei bietet es auch eine gemeinsame API um CUDA und OpenCL zu abstrahieren.\cite{swan}
+\newpage
+\subsection{Systemdaten}
+\subsubsection{Allgemein}
+\begin{itemize}
+\item Intel Core i7-3635QM CPU 2.40GHz
+\item 8 GB DDR3-RAM
+\item Samsung MZ-75E500B/EU 850 EVO 2,5 Zoll 500GB SSD (SATA III)
+\item Windows 10 Pro 64-Bit
+\item AMD Radeon R9 M200X Series 2048 MB
 
-
-
+\end{itemize}
+\subsubsection{CPU}
+\begin{figure}[!h]
+	\begin{center}
+		\includegraphics[width=10cm]{images/cpu_specs.png}
+		\caption{CPU-Eigenschaften}
+	\end{center}
+\end{figure}
+\newpage
+\subsubsection{GPU}
+\begin{figure}[!h]
+	\begin{center}
+		\includegraphics[width=10cm]{images/gpu_specs.png}
+		\caption{GPU-Eigenschaften}
+	\end{center}
+\end{figure}
 \newpage
 \subsection{Bruteforce}
 \subsubsection{Beschreibung}
 Mithilfe von einer Brutforce Attacke wird versucht ein MD5 verschlüsseltes Passwort zu finden. Die Passwörter werden direkt auf der GPU generiert, gehasht und verglichen. So findet für die eigentliche suche das Passwortes keine Kommunikation zwischen CPU und GPU statt, womit der PCI Bus als Bottleneck ausgeschlossen werden kann.
-\subsubsection{Systemdaten}
-\begin{itemize}
-\item Intel Core i7-3635QM CPU 2.40GHz
-\item 8 GB DDR3-RAM
-\item Samsung MZ-75E500B/EU 850 EVO 2,5 Zoll 500GB SSD (SATA III)
-\item Windows 10 Pro 64-Bit
-\item AMD Radeon R9 M200X Series 2048 MB
-\end{itemize}
+
+\subsection{Bruteforce}
+\subsubsection{Beschreibung}
+Mithilfe von einer Brutforce Attacke wird versucht ein MD5 verschlüsseltes Passwort zu finden. Die Passwörter werden direkt auf der GPU generiert, gehasht und verglichen. So findet für die eigentliche suche das Passwortes keine Kommunikation zwischen CPU und GPU statt, womit der PCI Bus als Bottleneck ausgeschlossen werden kann.
 \subsubsection{Durchführung}
 Es wurden jeweils 100 Durchläufe durchgeführt.
 Die Ergebnisse sehen folgendermaßen aus:
-
+\begin{figure}[!h]
+	\begin{center}
+		\includegraphics[width=17cm]{images/bruteforce.png}
+		\caption{Bruteforce-Benchmark}
+	\end{center}
+\end{figure}
+\newpage
+\subsubsection{Ausführen des Programmes}
+Das fertige Projekt inklusive \texttt{pom.xml} befindet sich im ZIP-File. Zum Builden der JAR kann \texttt{mvn clean install} ausgeführt werden. Das JAR-File namens \texttt{dezsys08-gpgpu-1.0.0.jar} befindet sich dann im \texttt{target} Verzeichnis. Zum Ausführen muss in der Konsole folgender Befehl ausgeführt werden:
+\begin{center}
+\texttt{java -jar dezsys08-gpgpu-1.0.0.jar}
+\end{center}
+Mit diesem Befehl wird die GPU zur Ausführung verwendet. Wenn der Parameter \texttt{cpu} hinzugefügt wird, wird die CPU verwendet. In diesem Zustand wird das Programm 8 mal ausgeführt, für den Benchmark wurden jedoch 100 verwendet. Um diese Anzahl anzupassen, muss die Variable \texttt{ITERATIONS} auf den gewünschten Wert gesetzt werden.
+\newpage
 \subsection{GPUPI}
 \subsubsection{Beschreibung}
 GPUPI berechnet PI mithilfe der BPP (Bailey-Borwein-Plouffe) Formel. Dieser Benchmark hängt vor allem von der 64 Bit Integer Performance ab auf der GPU beziehungsweise CPU ab.
-\subsubsection{Systemdaten}
-\begin{itemize}
-\item Intel Core i7-3635QM CPU 2.40GHz
-\item 8 GB DDR3-RAM
-\item Samsung MZ-75E500B/EU 850 EVO 2,5 Zoll 500GB SSD (SATA III)
-\item Windows 10 Pro 64-Bit
-\item AMD Radeon R9 M200X Series 2048 MB
-\end{itemize}
 \subsubsection{Durchführung}
-
+\begin{figure}[!h]
+	\begin{center}
+		\includegraphics[width=17cm]{images/gpupi.png}
+		\caption{GPUPI-Benchmark}
+	\end{center}
+\end{figure}
