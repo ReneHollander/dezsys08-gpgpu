@@ -1,28 +1,34 @@
 package at.hollanderkalauner.gpgpu;
 
 import at.hollanderkalauner.gpgpu.simplecl.*;
-import com.google.common.base.Splitter;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.PointerBuffer;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
-import java.util.List;
 
 import static at.hollanderkalauner.gpgpu.Util.*;
 import static org.lwjgl.opencl.CL10.*;
 
 public class Main {
-    private static final int ITERATIONS = 100;
+    private static final int ITERATIONS = 8;
     private static final int LOCAL_ITEM_SIZE = 64;
     private static final int GLOBAL_ITEM_SIZE = 8192;
     private static final String PW_HASH = "c75e86c6362f42a5b07cfe0f66d3d10a";
 
     public static void main(String[] args) throws Exception {
+        int device_type = CL_DEVICE_TYPE_GPU;
+
+        if (args.length == 1) {
+            if (args[0].equals("cpu")) {
+                device_type = CL_DEVICE_TYPE_CPU;
+            }
+        }
+
+        System.out.println("Using device type: " + Device.deviceTypeToString(device_type));
 
         Platform platform = Platform.createPlatform();
         System.out.println(platform);
-        Device device = platform.createDevice(CL_DEVICE_TYPE_CPU);
+        Device device = platform.createDevice(device_type);
         System.out.println(device);
         Context context = device.createContext();
         CommandQueue commandQueue = context.createCommandQueue();

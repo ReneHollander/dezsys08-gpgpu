@@ -78,7 +78,7 @@ public class Device {
 
     public static String deviceTypeToString(int type) {
         if (type == CL_DEVICE_TYPE_DEFAULT) return "DEFAULT";
-        else if (type == CL_DEVICE_TYPE_CPU) return "CUP";
+        else if (type == CL_DEVICE_TYPE_CPU) return "CPU";
         else if (type == CL_DEVICE_TYPE_GPU) return "GPU";
         else if (type == CL_DEVICE_TYPE_ACCELERATOR) return "ACCELERATOR";
         else throw new IllegalArgumentException("Specified integer not a device type: " + type);
