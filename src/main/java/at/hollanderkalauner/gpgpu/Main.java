@@ -14,6 +14,7 @@ import static org.lwjgl.opencl.CL10.*;
 
 public class Main {
     private static final int ITERATIONS = 1;
+    private static final int LOCAL_ITEM_SIZE = 64;
     private static final int GLOBAL_ITEM_SIZE = 8192;
     private static final String PW_HASH = "c75e86c6362f42a5b07cfe0f66d3d10a";
 
@@ -75,21 +76,21 @@ public class Main {
             long crackedMem = clCreateBuffer(context.address(), CL_MEM_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, crackedPwBuf, null);
             commandQueue.finish();
 
-        kernel.clSetKernelArg1p(0, startsMem);
-        kernel.clSetKernelArg1p(1, stopsMem);
-        kernel.clSetKernelArg1p(2, maxlenMem);
-        kernel.clSetKernelArg1p(3, pwHashMem);
-        kernel.clSetKernelArg1p(4, crackedMem);
+            kernel.clSetKernelArg1p(0, startsMem);
+            kernel.clSetKernelArg1p(1, stopsMem);
+            kernel.clSetKernelArg1p(2, maxlenMem);
+            kernel.clSetKernelArg1p(3, pwHashMem);
+            kernel.clSetKernelArg1p(4, crackedMem);
 
-        commandQueue.finish();
-        long start = System.nanoTime();
-        commandQueue.enqueueNDRangeKernel(kernel, 1, null, GLOBAL_ITEM_SIZE, LOCAL_ITEM_SIZE, null, null);
-        commandQueue.finish();
-        long time = System.nanoTime() - start;
+            commandQueue.finish();
+            long start = System.nanoTime();
+            commandQueue.enqueueNDRangeKernel(kernel, 1, null, GLOBAL_ITEM_SIZE, LOCAL_ITEM_SIZE, null, null);
+            commandQueue.finish();
+            long time = System.nanoTime() - start;
 
-        // Read the results memory back into our result buffer
-        clEnqueueReadBuffer(commandQueue.address(), crackedMem, 1, 0, crackedPwBuf, null, null);
-        commandQueue.finish();
+            // Read the results memory back into our result buffer
+            clEnqueueReadBuffer(commandQueue.address(), crackedMem, 1, 0, crackedPwBuf, null, null);
+            commandQueue.finish();
 
             // Print the result memory
             System.out.println("Cracked password: " + Util.toString(crackedPwBuf));
