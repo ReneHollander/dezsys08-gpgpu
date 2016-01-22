@@ -55,6 +55,7 @@ Ein Transcompiler übersetzt Source Code von einer Sprache in eine andere.
 Swan ist ein Tool um CUDA Kernel Sourcecode in OpenCL Sourcecode zu übersetzen. Nebenbei bietet es auch eine gemeinsame API um CUDA und OpenCL zu abstrahieren.\cite{swan}
 \newpage
 \subsection{Systemdaten}
+Das folgende System wurde für die unten angeführten Benchmarks verwendet.
 \subsubsection{Allgemein}
 \begin{itemize}
 \item Intel Core i7-3635QM CPU 2.40GHz
@@ -80,10 +81,6 @@ Swan ist ein Tool um CUDA Kernel Sourcecode in OpenCL Sourcecode zu übersetzen.
 	\end{center}
 \end{figure}
 \newpage
-\subsection{Bruteforce}
-\subsubsection{Beschreibung}
-Mithilfe von einer Brutforce Attacke wird versucht ein MD5 verschlüsseltes Passwort zu finden. Die Passwörter werden direkt auf der GPU generiert, gehasht und verglichen. So findet für die eigentliche suche das Passwortes keine Kommunikation zwischen CPU und GPU statt, womit der PCI Bus als Bottleneck ausgeschlossen werden kann.
-
 \subsection{Bruteforce}
 \subsubsection{Beschreibung}
 Mithilfe von einer Brutforce Attacke wird versucht ein MD5 verschlüsseltes Passwort zu finden. Die Passwörter werden direkt auf der GPU generiert, gehasht und verglichen. So findet für die eigentliche suche das Passwortes keine Kommunikation zwischen CPU und GPU statt, womit der PCI Bus als Bottleneck ausgeschlossen werden kann.
@@ -114,3 +111,6 @@ GPUPI berechnet PI mithilfe der BPP (Bailey-Borwein-Plouffe) Formel. Dieser Benc
 		\caption{GPUPI-Benchmark}
 	\end{center}
 \end{figure}
+\subsubsection{Ausführen des Programmes}
+GPUPI kann von der Website heruntergeladen werden. \cite{gpupi} Allerdings ist das Programm nur für Windows verfügbar.\\
+Unter dem Menüpunkt Calculate kann ausgewählt werden, ob die CPU oder die GPU verwendet werden soll. Außerdem kann die Anzahl der zu berechnenden Stellen ausgewählt werden.
