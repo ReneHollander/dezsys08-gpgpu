@@ -63,7 +63,6 @@ Das folgende System wurde für die unten angeführten Benchmarks verwendet.
 \item Samsung MZ-75E500B/EU 850 EVO 2,5 Zoll 500GB SSD (SATA III)
 \item Windows 10 Pro 64-Bit
 \item AMD Radeon R9 M200X Series 2048 MB
-
 \end{itemize}
 \subsubsection{CPU}
 \begin{figure}[!h]
@@ -84,6 +83,14 @@ Das folgende System wurde für die unten angeführten Benchmarks verwendet.
 \subsection{Bruteforce}
 \subsubsection{Beschreibung}
 Mithilfe von einer Brutforce Attacke wird versucht ein MD5 verschlüsseltes Passwort zu finden. Die Passwörter werden direkt auf der GPU generiert, gehasht und verglichen. So findet für die eigentliche suche das Passwortes keine Kommunikation zwischen CPU und GPU statt, womit der PCI Bus als Bottleneck ausgeschlossen werden kann.
+\subsubsection{Ausführen des Programmes}
+Das fertige Projekt inklusive \texttt{pom.xml} befindet sich im ZIP-File. Zum Builden der JAR kann \texttt{mvn clean install} ausgeführt werden. Das JAR-File namens \texttt{dezsys08-gpgpu-1.0.0.jar} befindet sich dann im \texttt{target} Verzeichnis. Zum Ausführen muss in der Konsole folgender Befehl ausgeführt werden:
+\begin{center}
+\texttt{java -jar dezsys08-gpgpu-1.0.0.jar}
+\end{center}
+Mit diesem Befehl wird die GPU zur Ausführung verwendet. Wenn der Parameter \texttt{cpu} hinzugefügt wird, wird die CPU verwendet. In diesem Zustand wird das Programm 8 mal ausgeführt, für den Benchmark wurden jedoch 100 verwendet. Um diese Anzahl anzupassen, muss die Variable \texttt{ITERATIONS} in der \texttt{Main}-Klasse auf den gewünschten Wert gesetzt werden. \\\\
+Während der Ausführung wird für jeden Durchlauf die benötigte Zeit in der Konsole ausgegeben. Die einzelnen Ergebnisse befinden sich in der Datei \texttt{benchmark.ods}, für das Diagramm wurde jedoch der Mittelwert der 100 Werte berechnet.
+\newpage
 \subsubsection{Durchführung}
 Es wurden jeweils 100 Durchläufe durchgeführt.
 Die Ergebnisse sehen folgendermaßen aus:
@@ -93,17 +100,14 @@ Die Ergebnisse sehen folgendermaßen aus:
 		\caption{Bruteforce-Benchmark}
 	\end{center}
 \end{figure}
-\newpage
-\subsubsection{Ausführen des Programmes}
-Das fertige Projekt inklusive \texttt{pom.xml} befindet sich im ZIP-File. Zum Builden der JAR kann \texttt{mvn clean install} ausgeführt werden. Das JAR-File namens \texttt{dezsys08-gpgpu-1.0.0.jar} befindet sich dann im \texttt{target} Verzeichnis. Zum Ausführen muss in der Konsole folgender Befehl ausgeführt werden:
-\begin{center}
-\texttt{java -jar dezsys08-gpgpu-1.0.0.jar}
-\end{center}
-Mit diesem Befehl wird die GPU zur Ausführung verwendet. Wenn der Parameter \texttt{cpu} hinzugefügt wird, wird die CPU verwendet. In diesem Zustand wird das Programm 8 mal ausgeführt, für den Benchmark wurden jedoch 100 verwendet. Um diese Anzahl anzupassen, muss die Variable \texttt{ITERATIONS} auf den gewünschten Wert gesetzt werden.
+\subsubsection{Fazit}
 \newpage
 \subsection{GPUPI}
 \subsubsection{Beschreibung}
 GPUPI berechnet PI mithilfe der BPP (Bailey-Borwein-Plouffe) Formel. Dieser Benchmark hängt vor allem von der 64 Bit Integer Performance ab auf der GPU beziehungsweise CPU ab.
+\subsubsection{Ausführen des Programmes}
+GPUPI kann von der Website heruntergeladen werden. \cite{gpupi} Allerdings ist das Programm nur für Windows verfügbar.\\
+Unter dem Menüpunkt ''Calculate'' kann ausgewählt werden, ob die CPU oder die GPU für die Berechnung verwendet werden soll. Außerdem kann die Anzahl der zu berechnenden Stellen ausgewählt werden. Nach Abschluss der Berechnung wird die benötigte Zeit ausgegeben.
 \subsubsection{Durchführung}
 \begin{figure}[!h]
 	\begin{center}
@@ -111,6 +115,5 @@ GPUPI berechnet PI mithilfe der BPP (Bailey-Borwein-Plouffe) Formel. Dieser Benc
 		\caption{GPUPI-Benchmark}
 	\end{center}
 \end{figure}
-\subsubsection{Ausführen des Programmes}
-GPUPI kann von der Website heruntergeladen werden. \cite{gpupi} Allerdings ist das Programm nur für Windows verfügbar.\\
-Unter dem Menüpunkt Calculate kann ausgewählt werden, ob die CPU oder die GPU verwendet werden soll. Außerdem kann die Anzahl der zu berechnenden Stellen ausgewählt werden.
+\newpage
+\subsubsection{Fazit}
