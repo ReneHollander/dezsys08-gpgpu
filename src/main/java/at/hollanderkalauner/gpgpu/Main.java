@@ -3,6 +3,7 @@ package at.hollanderkalauner.gpgpu;
 import at.hollanderkalauner.gpgpu.simplecl.*;
 import com.google.common.base.Splitter;
 import org.lwjgl.BufferUtils;
+import org.lwjgl.PointerBuffer;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -12,9 +13,8 @@ import static at.hollanderkalauner.gpgpu.Util.*;
 import static org.lwjgl.opencl.CL10.*;
 
 public class Main {
-
+    private static final int ITERATIONS = 1;
     private static final int GLOBAL_ITEM_SIZE = 8192;
-    private static final int LOCAL_ITEM_SIZE = 64;
     private static final String PW_HASH = "c75e86c6362f42a5b07cfe0f66d3d10a";
 
     public static void main(String[] args) throws Exception {
@@ -56,23 +56,24 @@ public class Main {
         }
         stops[GLOBAL_ITEM_SIZE - 1] += missingPermutations;
 
-        IntBuffer startsBuf = toIntBuffer(starts);
-        IntBuffer stopsBuf = toIntBuffer(stops);
-        IntBuffer pwHashBuf = toIntBuffer(pw_hash);
-        IntBuffer maxlenBuf = asIntBuffer(maxlen);
-        ByteBuffer crackedPwBuf = BufferUtils.createByteBuffer(maxlen + 1);
+        for (int i = 0; i < ITERATIONS; i++) {
+            IntBuffer startsBuf = toIntBuffer(starts);
+            IntBuffer stopsBuf = toIntBuffer(stops);
+            IntBuffer pwHashBuf = toIntBuffer(pw_hash);
+            IntBuffer maxlenBuf = asIntBuffer(maxlen);
+            ByteBuffer crackedPwBuf = BufferUtils.createByteBuffer(maxlen + 1);
 
-        // Allocate memory for our two input buffers and our result buffer
-        long startsMem = clCreateBuffer(context.address(), CL_MEM_READ_ONLY, startsBuf, null);
-        clEnqueueWriteBuffer(commandQueue.address(), startsMem, 1, 0, startsBuf, null, null);
-        long stopsMem = clCreateBuffer(context.address(), CL_MEM_READ_ONLY, stopsBuf, null);
-        clEnqueueWriteBuffer(commandQueue.address(), stopsMem, 1, 0, stopsBuf, null, null);
-        long pwHashMem = clCreateBuffer(context.address(), CL_MEM_READ_ONLY, pwHashBuf, null);
-        clEnqueueWriteBuffer(commandQueue.address(), pwHashMem, 1, 0, pwHashBuf, null, null);
-        long maxlenMem = clCreateBuffer(context.address(), CL_MEM_READ_ONLY, maxlenBuf, null);
-        clEnqueueWriteBuffer(commandQueue.address(), maxlenMem, 1, 0, maxlenBuf, null, null);
-        long crackedMem = clCreateBuffer(context.address(), CL_MEM_WRITE_ONLY, crackedPwBuf, null);
-        commandQueue.finish();
+            // Allocate memory for our two input buffers and our result buffer
+            long startsMem = clCreateBuffer(context.address(), CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, startsBuf, null);
+            clEnqueueWriteBuffer(commandQueue.address(), startsMem, 1, 0, startsBuf, null, null);
+            long stopsMem = clCreateBuffer(context.address(), CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, stopsBuf, null);
+            clEnqueueWriteBuffer(commandQueue.address(), stopsMem, 1, 0, stopsBuf, null, null);
+            long pwHashMem = clCreateBuffer(context.address(), CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, pwHashBuf, null);
+            clEnqueueWriteBuffer(commandQueue.address(), pwHashMem, 1, 0, pwHashBuf, null, null);
+            long maxlenMem = clCreateBuffer(context.address(), CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, maxlenBuf, null);
+            clEnqueueWriteBuffer(commandQueue.address(), maxlenMem, 1, 0, maxlenBuf, null, null);
+            long crackedMem = clCreateBuffer(context.address(), CL_MEM_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, crackedPwBuf, null);
+            commandQueue.finish();
 
         kernel.clSetKernelArg1p(0, startsMem);
         kernel.clSetKernelArg1p(1, stopsMem);
@@ -90,16 +91,17 @@ public class Main {
         clEnqueueReadBuffer(commandQueue.address(), crackedMem, 1, 0, crackedPwBuf, null, null);
         commandQueue.finish();
 
-        // Print the result memory
-        System.out.println("Cracked password: " + Util.toString(crackedPwBuf));
-        System.out.println("Time: " + (time / 1000000) + "ms");
+            // Print the result memory
+            System.out.println("Cracked password: " + Util.toString(crackedPwBuf));
+            System.out.println("Time: " + (time / 1000000) + "ms");
 
-        // Clean up OpenCL resources
-        clReleaseMemObject(startsMem);
-        clReleaseMemObject(stopsMem);
-        clReleaseMemObject(maxlenMem);
-        clReleaseMemObject(pwHashMem);
-        clReleaseMemObject(crackedMem);
+            // Clean up OpenCL resources
+            clReleaseMemObject(startsMem);
+            clReleaseMemObject(stopsMem);
+            clReleaseMemObject(maxlenMem);
+            clReleaseMemObject(pwHashMem);
+            clReleaseMemObject(crackedMem);
+        }
         kernel.release();
         program.release();
         commandQueue.release();
